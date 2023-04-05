@@ -9,7 +9,6 @@ commands:
         steps:
           - slack/notify:
                 event: fail
-                channel: 03-cloud-devops-eng
                 template: basic_fail_1
 
     destroy-environment:
@@ -227,7 +226,7 @@ jobs:
           - checkout
 
           - add_ssh_keys:
-                fingerprints: ["97:2a:b6:9b:35:49:17:e7:a1:d4:8c:a2:4e:4d:d6:1b"]
+                fingerprints: ["77:4c:1e:09:63:4d:b0:41:0d:fa:5a:8a:f2:53:31:80"]
           - attach_workspace:
                 at: ~/
           
@@ -329,7 +328,7 @@ jobs:
           - checkout
 
           - add_ssh_keys:
-                fingerprints: ["97:2a:b6:9b:35:49:17:e7:a1:d4:8c:a2:4e:4d:d6:1b"]
+                fingerprints: ["77:4c:1e:09:63:4d:b0:41:0d:fa:5a:8a:f2:53:31:80"]
 
           - attach_workspace:
                 at: ~/
