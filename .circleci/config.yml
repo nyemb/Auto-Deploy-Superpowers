@@ -115,14 +115,9 @@ jobs:
       - run:
           name:  Run backend test
           command: |
-            SUCCESS=$(curl --insecure https://kvdb.io/RhgHvNzruMQprmmRDsGvKb/migration_${CIRCLE_WORKFLOW_ID:0:7})
-            echo $SUCCESS
-            if (($SUCCESS == 1))
-            then
-              cd ~/project/backend
-              npm install
-              npm run migrations:revert
-            fi
+            cd backend
+            npm install
+            npm run test
             
   scan-frontend:
     docker:
