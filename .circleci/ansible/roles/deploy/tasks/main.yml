@@ -1,71 +1,55 @@
 ---
-- name: "Update local apt repo"
-  become: true
-  apt:
-    update_cache: yes
+# - name: 'update and upgrade packages.'
+#   become: yes
+#   apt:
+#     upgrade: yes
+#     update_cache: yes
+#     cache_valid_time: 86400
 
-- name: "Upgrade apt packages"
-  become: true
-  apt:
-    upgrade: yes
+# - name: remove unneeded deps
+#   become: yes
+#   apt:
+#     autoremove: yes
 
-- name: "Install dependencies [nodejs & npm]"
-  become: true
-  apt:
-    name: ["nodejs","npm"]
-    state: latest
-    update_cache: yes
+# - name: install pm2
+#   become: yes
+#   npm:
+#     name: pm2
+#     global: yes
 
-- name: "Install pm2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-
-- name: Configure pm2 to start as service
-  become: true
-  shell: |
-    sudo su -c "env PATH=$PATH:usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu"
-    pm2 save
-
-- name: Create Backend Directory
-  file:
-    path: /home/ubuntu/backend
-    state: directory
-
-- name: Copy artifact into instance 
-  become: true
-  copy:
-    src: ~/project/artifact.tar.gz
-    dest: /home/ubuntu/backend 
-
-- name: Extract artifact.tar.gz
+- name: extract artifact
+  become: yes
   unarchive:
-    src: ~/project/artifact.tar.gz
-    dest: /home/ubuntu/backend   
-
-- name: "Installing Node Dependencies"
+    src: files/artifact.tar.gz
+    dest: .
+    
+- name: start app
+  become: yes
   shell: |
-    cd /home/ubuntu/backend
-    sudo npm i
-
-- name: Start the app
-  become: true
-  shell: |
-    cd /home/ubuntu/backend/dist
+    npm install
     pm2 stop all
-    pm2 start npm -- start main.js
-  register: execute_node
+    pm2 start npm --name "udapeople-backend" -- run start
+  environment:
+    ENVIRONMENT: production
+    NODE_ENV: production
+    TYPEORM_CONNECTION: postgres
+    TYPEORM_MIGRATIONS_DIR: ./src/migrations
+    TYPEORM_ENTITIES: ./src/modules/**/*.entity.ts
+    TYPEORM_MIGRATIONS: ./src/migrations/*.ts
+    TYPEORM_HOST: udapeople-db-prod.cjqwbt35ugyf.us-west-2.rds.amazonaws.com
+    TYPEORM_PORT: 5432
+    TYPEORM_USERNAME: postgres
+    TYPEORM_PASSWORD: udapeople123
+    TYPEORM_DATABASE: postgres
+    
+- name: "Set pm2 start as service"
+  become: yes
+  shell: |
+    env PATH=$PATH:/usr/local/bin pm2 startup -u ubuntu
 
-- name: "Remove stale dependencies"
-  become: true
-  apt:
-    autoremove: yes
-
-
-- name: Print message
-  debug:
-      msg: "{{ execute_node.stdout_lines }}"
-
+- name: check pm2 status
+  become: yes
+  shell: |
+    pm2 describe "udapeople-backend"
+  register: command_output_npm
+- debug: var=command_output_npm.stdout_lines
