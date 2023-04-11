@@ -216,7 +216,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - '84:75:d8:82:99:a8:f6:ad:b8:87:cf:0c:e6:0c:13:42'
+            - '58:b5:02:ab:41:f0:2e:53:21:b8:16:7f:b9:7b:2c:06'
       - run:
           name: Install dependencies
           command: |
@@ -321,7 +321,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - '84:75:d8:82:99:a8:f6:ad:b8:87:cf:0c:e6:0c:13:42'
+            - '58:b5:02:ab:41:f0:2e:53:21:b8:16:7f:b9:7b:2c:06'
       # attach workspace
       - attach_workspace:
          at: ~/
@@ -393,7 +393,7 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
@@ -482,22 +482,22 @@ workflows:
       #     requires: [build-backend]
       # - scan-frontend:
       #     requires: [build-frontend]
-      # - deploy-infrastructure
+      - deploy-infrastructure
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
           #     only: [main]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
-      - cleanup
+      # - cleanup
       #     requires: [cloudfront-update]
